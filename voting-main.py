@@ -21,6 +21,18 @@ voting_systemdb = mysql.connector.connect(
     database="voting_system"
 )
 
+#create if not exists the database and the tables
+cursor = voting_systemdb.cursor()
+cursor.execute("CREATE DATABASE IF NOT EXISTS voting_system")
+cursor.execute("USE voting_system")
+cursor.execute("CREATE TABLE IF NOT EXISTS voter (voter_id INT AUTO_INCREMENT PRIMARY KEY, first_name VARCHAR(255), last_name VARCHAR(255), email VARCHAR(255), address VARCHAR(255), mobile INT, password VARCHAR(255))")
+cursor.execute("CREATE TABLE IF NOT EXISTS election (election_id INT AUTO_INCREMENT PRIMARY KEY, election_name VARCHAR(255), start_date DATE, end_date DATE, description VARCHAR(255))")
+cursor.execute("CREATE TABLE IF NOT EXISTS candidate (candidate_id INT AUTO_INCREMENT PRIMARY KEY, first_name VARCHAR(255), last_name VARCHAR(255),gender VARCHAR(45),age INT, address VARCHAR(255), city VARCHAR(255), state VARCHAR(255), zipcode INT, phonenumber INT)")
+cursor.execute("CREATE TABLE IF NOT EXISTS party (party_id INT AUTO_INCREMENT PRIMARY KEY, party_name VARCHAR(100), party_symbol VARCHAR(100), party_image VARCHAR(255))")
+#for ballot box
+cursor.execute("CREATE TABLE IF NOT EXISTS vote (vote_id INT AUTO_INCREMENT PRIMARY KEY,party_name VARCHAR(45), candidate_name VARCHAR(45), username VARCHAR(45), election_name VARCHAR(45))")
+cursor.execute("CREATE TABLE IF NOT EXISTS ballot_box (candidate_id INT PRIMARY KEY, election_id INT , party_id INT , election_name VARCHAR(45), candidate_name VARCHAR(45), party_name VARCHAR(45))")
+
 class votingsystem:
         #initializing the class
     def __init__(self, root):
@@ -339,7 +351,7 @@ class votingsystem:
         self.view_result = Image.open("view_results.png")
         self.view_result = self.view_result.resize((80, 80), Image.LANCZOS)
         self.view_result = ImageTk.PhotoImage(self.view_result)
-        self.view_result_button = Button(self.admin_frame, image=self.view_result,bg= "white",bd=0, cursor="hand2")
+        self.view_result_button = Button(self.admin_frame, image=self.view_result,bg= "white",bd=0, cursor="hand2",command=self.admin_view_result)
         self.view_result_button.place(x=470, y=400)
         self.view_result_lable = Label(self.admin_frame, text="View Results", font=("calibri", 15,"bold"), bg="white", fg="black")
         self.view_result_lable.place(x=450, y=480)
@@ -679,10 +691,6 @@ class votingsystem:
             description = Label(self.view_election_frame, text=election[3], font=("calibri", 15,"bold"), bg="#15196e", fg="white")
             description.place(x=650, y=150+(i*30))
             
-           # Add candidate button for each election
-            add_candidate_button = Button(self.view_election_frame, text="Add Candidate", font=("calibri", 15, "bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", 
-                                      command=self.ballot_box)
-            add_candidate_button.place(x=850, y=150 + (i * 30))
             
             
             
@@ -1076,7 +1084,7 @@ class votingsystem:
         
         # Calculate the total number of votes and show the winner for the selected election
         select_data = """
-            SELECT candidate_name, COUNT(candidate_name) AS total_votes 
+            SELECT candidate_name, COUNT(username) AS total_votes 
             FROM vote 
             WHERE election_name = %s 
             GROUP BY candidate_name 
@@ -1297,6 +1305,103 @@ class votingsystem:
         
         finally:
             cursor.close()
+        
+    def admin_view_result(self):
+        #admin needs to select the election to view the result
+        for i in self.root.winfo_children():
+            i.destroy()
+            
+        self.admin_view_result_frame = Frame(self.root, bg="white")
+        self.admin_view_result_frame.place(x=0, y=0, width=1200, height=750)
+        
+        #add image to the view result page
+        # self.bg = Image.open("viewresult.png")
+        # self.bg = self.bg.resize((1200, 750), Image.LANCZOS)
+        # self.bg = ImageTk.PhotoImage(self.bg)
+        # self.bg_image = Label(self.admin_view_result_frame, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
+        
+        # add view result text to the view result page center
+        self.view_result_label = Label(self.admin_view_result_frame, text="View Results", font=("calibri", 20,"bold"), bg="#15196e", fg="white")
+        self.view_result_label.place(x=550, y=50)
+        
+        #select the election name from the dropdown
+        cursor = voting_systemdb.cursor()
+        select_data = "SELECT DISTINCT election_name FROM vote"
+        cursor.execute(select_data)
+        elections = cursor.fetchall()
+        
+        election_list = []
+        
+        for election in elections:
+            election_list.append(election[0])
+
+        self.election_var = StringVar()
+        
+        self.election_var.set("Select Election")
+        self.election_entry = ttk.Combobox(self.admin_view_result_frame, textvariable=self.election_var, values=election_list, state="readonly")
+        self.election_entry.place(x=500, y=100)
+        
+        #show the result button
+        self.show_result_button = Button(self.admin_view_result_frame, text="Show Result", font=("calibri", 15,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.admin_show_result)
+        self.show_result_button.place(x=500, y=150)
+        
+        #add back to admin button
+        self.back_button = Button(self.admin_view_result_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.admin_screen)
+        self.back_button.place(x=500, y=200)
+        
+    def admin_show_result(self):
+        for i in self.admin_view_result_frame.winfo_children():
+            i.destroy()
+        
+        self.admin_view_result_frame = Frame(self.root, bg="white")
+        self.admin_view_result_frame.place(x=0, y=0, width=1200, height=750)
+        
+        self.view_result_label = Label(self.admin_view_result_frame, text="View Results", font=("calibri", 20,"bold"), bg="#15196e", fg="white")
+        self.view_result_label.place(x=550, y=50)
+        
+        election_name = self.election_var.get().strip()  # Make sure to strip any extra spaces
+        
+        if election_name == "Select Election":
+            messagebox.showerror("Error", "Select an Election")
+            return
+        
+        # siply show the result of the selected election
+        select_data = """
+            SELECT candidate_name, COUNT(username) AS total_votes 
+            FROM vote 
+            WHERE election_name = %s 
+            GROUP BY candidate_name 
+            ORDER BY total_votes DESC
+        """
+        cursor = voting_systemdb.cursor()
+        cursor.execute(select_data, (election_name,))
+        votes = cursor.fetchall()
+        
+        if not votes:
+            messagebox.showinfo("Info", "No votes have been cast for this election.")
+            return
+        
+        # Show the candidate name and total votes
+        candidate_name_label = Label(self.admin_view_result_frame, text="Candidate Name", font=("calibri", 15,"bold"), bg="#15196e", fg="white")
+        candidate_name_label.place(x=50, y=100)
+        
+        total_votes_label = Label(self.admin_view_result_frame, text="Total Votes", font=("calibri", 15,"bold"), bg="#15196e", fg="white")
+        total_votes_label.place(x=250, y=100)
+        
+        for i, vote in enumerate(votes):
+            candidate_name = Label(self.admin_view_result_frame, text=vote[0], font=("calibri", 15,"bold"), bg="#15196e", fg="white")
+            candidate_name.place(x=50, y=130+(i*30))
+            
+            total_votes = Label(self.admin_view_result_frame, text=vote[1], font=("calibri", 15,"bold"), bg="#15196e", fg="white")
+            total_votes.place(x=250, y=130+(i*30))
+            
+        # Add back to admin button
+        self.back_button = Button(self.admin_view_result_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.admin_screen)
+        self.back_button.place(x=100, y=600)
+        
+    
+
+        
         
             
         
