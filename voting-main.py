@@ -9,6 +9,7 @@ from PIL import Image, ImageTk
 from tkinter import filedialog
 import re
 import tkinter as tk
+from datetime import datetime
 from tkinter import ttk
 import webbrowser
 
@@ -216,12 +217,12 @@ class votingsystem:
     # login page validation with the database
     def login_authentication(self):
         # get the data from the entry boxes
-        email = self.username_entry.get()
+        self.email = self.username_entry.get()
         password = self.password_entry.get()
         
         # checking the email and password with the database
         cursor = voting_systemdb.cursor()
-        select_data = f"SELECT * FROM voter WHERE email = '{email}' AND password = '{password}'"
+        select_data = f"SELECT * FROM voter WHERE email = '{self.email}' AND password = '{password}'"
         cursor.execute(select_data)
         user = cursor.fetchone()
 
@@ -234,7 +235,7 @@ class votingsystem:
             self.mobile = user[5]
             self.current_password = user[6]
             self.voter_screen()
-        elif email == "admin" and password == "admin":
+        elif self.email == "admin" and password == "admin":
             self.admin_screen()
         else:
             messagebox.showerror("Error", "Invalid Email or Password")
@@ -263,7 +264,7 @@ class votingsystem:
         self.vote_button.place(x=500, y=250)
         
         # add view result button to the left side of the page
-        self.view_result_button = Button(self.voter_frame, text="View Result", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2")
+        self.view_result_button = Button(self.voter_frame, text="View Result", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.view_result_screen)
         self.view_result_button.place(x=500, y=300)
         
         # add logout button to the right side of the page
@@ -542,7 +543,7 @@ class votingsystem:
         self.other_radio.place(x=850, y=330)
         
         # Set default value
-        self.gender_var.set("Male")
+        self.gender_var.set(" ")
         
        
 
@@ -857,12 +858,12 @@ class votingsystem:
         # self.bg_image = Label(self.vote_frame, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
         
         # add vote text to the vote page center
-        self.vote_label = Label(self.vote_frame, text="Choose your candidate", font=("calibri", 20,"bold"), bg="white", fg="black")
+        self.vote_label = Label(self.vote_frame, text="Choose your election", font=("calibri", 20,"bold"), bg="white", fg="black")
         self.vote_label.place(x=550, y=100)
         
-        #show the election name in the dropdown
+        #show the avaliable elections in the dropdown from ballot box
         cursor = voting_systemdb.cursor()
-        select_data = "SELECT election_name FROM election WHERE start_date >= CURDATE()"
+        select_data = "SELECT DISTINCT election_name FROM ballot_box"
         cursor.execute(select_data)
         elections = cursor.fetchall()
         
@@ -876,55 +877,125 @@ class votingsystem:
         self.election_entry = ttk.Combobox(self.vote_frame, textvariable=self.election_var, values=election_list, state="readonly")
         self.election_entry.place(x=500, y=200)
         
-        #show the candidates for the selected election as a radio button
-        self.candidate_var = StringVar()
-        self.candidate_var.set(" ")
-        
-        self.candidate_frame = Frame(self.vote_frame, bg="white")
-        self.candidate_frame.place(x=500, y=250)
-        
-        #get the selected election name
-        election_name = self.election_var.get()
-        
-        #get the candidates for the selected election
-        cursor = voting_systemdb.cursor()
-        select_data = "SELECT candidate_name FROM candidate WHERE election_name = %s"
-        cursor.execute(select_data, (election_name,))
-        candidates = cursor.fetchall()
-        
-        for candidate in candidates:
-            candidate_radio = Radiobutton(self.candidate_frame, text=candidate[0], variable=self.candidate_var, value=candidate[0], font=("calibri", 15), bg="white", fg="black")
-            candidate_radio.pack()
-            
-        #add vote button
-        self.vote_button = Button(self.vote_frame, text="Vote", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.vote)
-        self.vote_button.place(x=500, y=400)
+        #next button to show the candidates with party name and image
+        self.next_button = Button(self.vote_frame, text="Next", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.show_candidates)
+        self.next_button.place(x=500, y=250)
         
         #add back to home button
         self.back_button = Button(self.vote_frame, text="Back to Home", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.home_screen)
-        self.back_button.place(x=500, y=450)
+        self.back_button.place(x=500, y=300)
         
-    def vote(self):
+    def show_candidates(self):
+        for i in self.vote_frame.winfo_children():
+            i.destroy()
+        
+        #create a frame to show the candidates
+        self.vote_frame = Frame(self.root, bg="white")
+        self.vote_frame.place(x=0, y=0, width=1200, height=750)
+        
+        self.vote_label = Label(self.vote_frame, text="Choose your candidate", font=("calibri", 20,"bold"), bg="white", fg="black")
+        self.vote_label.place(x=550, y=50)
+        
+        #validate if the user has already voted in this election
+        cursor = voting_systemdb.cursor()
+        select_data = "SELECT * FROM vote WHERE username = %s"
+        cursor.execute(select_data, (self.email,))
+        votes = cursor.fetchall()
+        
+        for vote in votes:
+            if vote[4] == self.election_var.get():
+                messagebox.showerror("Error", "You have already voted in this election")
+                self.vote_screen()
+                return
+       
+        
+        
+        
+        
+        
+        
         election_name = self.election_var.get()
-        candidate_name = self.candidate_var.get()
         
-        if election_name == "Select Election" or candidate_name == " ":
-            messagebox.showerror("Error", "Select an Election and Candidate")
+        if election_name == "Select Election":
+            messagebox.showerror("Error", "Select an Election")
             return
         
-        #insert the vote to the database
-        try:
-            cursor = voting_systemdb.cursor()
-            insert_data = "INSERT INTO vote (election_name, candidate_name) VALUES (%s, %s)"
-            cursor.execute(insert_data, (election_name, candidate_name))
-            voting_systemdb.commit()
-            messagebox.showinfo("Success", "Vote casted successfully")
+        # Add headings
+        candidate_name_heading = Label(self.vote_frame, text="Candidate Name", font=("calibri", 15,"bold"), bg="white", fg="black")
+        candidate_name_heading.place(x=50, y=100)
         
-        except mysql.connector.Error as e:
-            messagebox.showerror("Database Error", f"An error occurred: {e}")
+        party_name_heading = Label(self.vote_frame, text="Party Name", font=("calibri", 15,"bold"), bg="white", fg="black")
+        party_name_heading.place(x=250, y=100)
         
-        finally:
-            cursor.close()
+        party_symbol_heading = Label(self.vote_frame, text="Party Symbol", font=("calibri", 15,"bold"), bg="white", fg="black")
+        party_symbol_heading.place(x=450, y=100)
+        
+        # Fetch candidates in the election from the database
+        cursor = voting_systemdb.cursor()
+        select_data = """
+            SELECT bb.candidate_name, bb.party_name, p.party_image 
+            FROM ballot_box as bb 
+            LEFT JOIN party as p ON p.party_id = bb.party_id  
+            WHERE bb.election_name = %s
+        """
+        cursor.execute(select_data, (election_name,))
+        candidates = cursor.fetchall()
+        
+        self.candidate_var = StringVar()  # To store the selected candidate name
+        self.candidate_var.set(None)  # Set the default value to None
+        self.party_var = StringVar()  # To store the selected party name
+        
+        for i, candidate in enumerate(candidates):
+            candidate_name = Label(self.vote_frame, text=candidate[0], font=("calibri", 15,"bold"), bg="white", fg="black")
+            candidate_name.place(x=50, y=150+(i*150))
+            
+            party_name = Label(self.vote_frame, text=candidate[1], font=("calibri", 15,"bold"), bg="white", fg="black")
+            party_name.place(x=250, y=150+(i*150))
+            
+            party_image = Image.open(candidate[2])
+            party_image = party_image.resize((100, 100), Image.LANCZOS)
+            party_image = ImageTk.PhotoImage(party_image)
+            party_image_label = Label(self.vote_frame, image=party_image)
+            party_image_label.image = party_image
+            party_image_label.place(x=450, y=150+(i*150))
+            
+            # Store both candidate name and party name in the value of the radio button
+            candidate_radio = Radiobutton(self.vote_frame, text=candidate[0], variable=self.candidate_var, value=candidate[0], font=("calibri", 15), bg="white", fg="black", command=lambda c=candidate[0], p=candidate[1]: self.update_party(c, p))
+            candidate_radio.place(x=650, y=150+(i*150))
+        
+        # Add vote button
+        self.vote_button = Button(self.vote_frame, text="Vote", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.vote_capture)
+        self.vote_button.place(x=500, y=600)
+        
+        # Add back to home button
+        self.back_button = Button(self.vote_frame, text="Back to Home", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.home_screen)
+        self.back_button.place(x=500, y=650)
+
+    def update_party(self, candidate_name, party_name):
+        self.candidate_var.set(candidate_name)
+        self.party_var.set(party_name)
+
+    def vote_capture(self):
+        candidate_name = self.candidate_var.get()
+        party_name = self.party_var.get()
+        
+        #get election name from the election dropdown
+        election_name = self.election_var.get()
+        
+        # Get the user's first name and last name from the login page
+        username= self.email
+        
+        if candidate_name == "":
+            messagebox.showerror("Error", "Select a Candidate")
+            return
+        
+        # Insert the party name, candidate name, and user first and last name into the vote table
+        cursor = voting_systemdb.cursor()
+        insert_data = "INSERT INTO vote (party_name, candidate_name, username,election_name) VALUES (%s, %s, %s, %s)"
+        cursor.execute(insert_data, (party_name, candidate_name, username,election_name))
+        voting_systemdb.commit()  # Commit the transaction
+        
+        messagebox.showinfo("Success", "Vote casted successfully")
             
     def view_result_screen(self):
         for i in self.root.winfo_children():
@@ -934,18 +1005,18 @@ class votingsystem:
         self.view_result_frame.place(x=0, y=0, width=1200, height=750)
         
         #add image to the view result page
-        self.bg = Image.open("viewresult.png")
-        self.bg = self.bg.resize((1200, 750), Image.LANCZOS)
-        self.bg = ImageTk.PhotoImage(self.bg)
-        self.bg_image = Label(self.view_result_frame, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
+        # self.bg = Image.open("viewresult.png")
+        # self.bg = self.bg.resize((1200, 750), Image.LANCZOS)
+        # self.bg = ImageTk.PhotoImage(self.bg)
+        # self.bg_image = Label(self.view_result_frame, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
         
         # add view result text to the view result page center
         self.view_result_label = Label(self.view_result_frame, text="View Results", font=("calibri", 20,"bold"), bg="#15196e", fg="white")
         self.view_result_label.place(x=550, y=50)
         
-        #show the election name in the dropdown
+        #select the election name from the dropdown
         cursor = voting_systemdb.cursor()
-        select_data = "SELECT election_name FROM election WHERE end_date <= CURDATE()"
+        select_data = "SELECT DISTINCT election_name FROM vote"
         cursor.execute(select_data)
         elections = cursor.fetchall()
         
@@ -957,16 +1028,95 @@ class votingsystem:
         self.election_var = StringVar()
         self.election_var.set("Select Election")
         self.election_entry = ttk.Combobox(self.view_result_frame, textvariable=self.election_var, values=election_list, state="readonly")
-        self.election_entry.place(x=500, y=200)
+        self.election_entry.place(x=500, y=100)
         
-        #add view result button
-        self.view_result_button = Button(self.view_result_frame, text="View Result", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.view_result)
-        self.view_result_button.place(x=500, y=250)
+        #show the result button
+        self.show_result_button = Button(self.view_result_frame, text="Show Result", font=("calibri", 15,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.show_result)
+        self.show_result_button.place(x=500, y=150)
         
-        #add back to home button
-        self.back_button = Button(self.view_result_frame, text="Back to Home", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.home_screen)
-        self.back_button.place(x=500, y=300)
+        #add back to admin button
+        self.back_button = Button(self.view_result_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.admin_screen)
+        self.back_button.place(x=500, y=200)
         
+
+
+    def show_result(self):
+        for i in self.view_result_frame.winfo_children():
+            i.destroy()
+        
+        self.view_result_frame = Frame(self.root, bg="white")
+        self.view_result_frame.place(x=0, y=0, width=1200, height=750)
+        
+        self.view_result_label = Label(self.view_result_frame, text="View Results", font=("calibri", 20,"bold"), bg="#15196e", fg="white")
+        self.view_result_label.place(x=550, y=50)
+        
+        election_name = self.election_var.get().strip()  # Make sure to strip any extra spaces
+        
+        if election_name == "Select Election":
+            messagebox.showerror("Error", "Select an Election")
+            return
+        
+        # Fetch the end date of the selected election
+        cursor = voting_systemdb.cursor()
+        select_end_date_query = "SELECT end_date FROM election WHERE election_name = %s"
+        cursor.execute(select_end_date_query, (election_name,))
+        election_data = cursor.fetchone()
+        
+        if not election_data:
+            messagebox.showerror("Error", f"Election '{election_name}' not found.")
+            return
+        
+        end_date = election_data[0]
+        current_date = datetime.now().date()
+        
+        # Check if the current date is after the election's end date
+        if current_date < end_date:
+            messagebox.showinfo("Info", f"Results are not available until the election ends on {end_date.strftime('%Y-%m-%d')}")
+            return
+        
+        # Calculate the total number of votes and show the winner for the selected election
+        select_data = """
+            SELECT candidate_name, COUNT(candidate_name) AS total_votes 
+            FROM vote 
+            WHERE election_name = %s 
+            GROUP BY candidate_name 
+            ORDER BY total_votes DESC
+        """
+        cursor.execute(select_data, (election_name,))
+        votes = cursor.fetchall()
+        
+        if not votes:
+            messagebox.showinfo("Info", "No votes have been cast for this election.")
+            return
+        
+        # Show the winner
+        winner = votes[0][0]
+        total_votes = votes[0][1]
+        
+        winner_label = Label(self.view_result_frame, text=f"Winner: {winner}", font=("calibri", 15,"bold"), bg="#15196e", fg="white")
+        winner_label.place(x=550, y=100)
+        
+        total_votes_label = Label(self.view_result_frame, text=f"Total Votes: {total_votes}", font=("calibri", 15,"bold"), bg="#15196e", fg="white")
+        total_votes_label.place(x=550, y=150)
+        
+        # Show the candidate name and total votes
+        candidate_name_label = Label(self.view_result_frame, text="Candidate Name", font=("calibri", 15,"bold"), bg="#15196e", fg="white")
+        candidate_name_label.place(x=50, y=200)
+        
+        total_votes_label = Label(self.view_result_frame, text="Total Votes", font=("calibri", 15,"bold"), bg="#15196e", fg="white")
+        total_votes_label.place(x=250, y=200)
+        
+        for i, vote in enumerate(votes):
+            candidate_name = Label(self.view_result_frame, text=vote[0], font=("calibri", 15,"bold"), bg="#15196e", fg="white")
+            candidate_name.place(x=50, y=230+(i*30))
+            
+            total_votes = Label(self.view_result_frame, text=vote[1], font=("calibri", 15,"bold"), bg="#15196e", fg="white")
+            total_votes.place(x=250, y=230+(i*30))
+        
+        # Add back to admin button
+        self.back_button = Button(self.view_result_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.admin_screen)
+        self.back_button.place(x=100, y=600)
+ 
     def register_party(self):
         for i in self.root.winfo_children():
             i.destroy()
@@ -1054,7 +1204,7 @@ class votingsystem:
         
         #show selected election
         cursor = voting_systemdb.cursor()
-        select_data = "SELECT election_name FROM election WHERE start_date >= CURDATE()"
+        select_data = "SELECT CONCAT(election_id, ' - ', election_name) AS election_info FROM election WHERE start_date >= CURDATE()"
         cursor.execute(select_data)
         elections = cursor.fetchall()
         
@@ -1078,7 +1228,7 @@ class votingsystem:
         cursor = voting_systemdb.cursor()
 
         # SQL query to concatenate first and last name, and fetch the candidate ID as well
-        select_data = "SELECT candidate_id, CONCAT(first_name, ' ', last_name) AS full_name FROM candidate"
+        select_data = "SELECT CONCAT(candidate_id,'-',first_name, ' ', last_name) AS full_name FROM candidate"
 
         # Execute the query
         cursor.execute(select_data)
@@ -1089,9 +1239,7 @@ class votingsystem:
 
         # Format each entry as "ID - Full Name"
         for candidate in candidates:
-            candidate_id = candidate[0]
-            full_name = candidate[1]
-            candidate_list.append(f"{candidate_id} - {full_name}")
+            candidate_list.append(candidate[0])
 
         # Set up the combobox with formatted candidate entries
         self.candidate_var = StringVar()
@@ -1102,7 +1250,7 @@ class votingsystem:
         
         #select party
         cursor = voting_systemdb.cursor()
-        select_data = "SELECT party_name FROM party"
+        select_data = "SELECT CONCAT(party_id, '-', party_name) AS party_info FROM party"
         cursor.execute(select_data)
         parties = cursor.fetchall()
         
@@ -1125,45 +1273,30 @@ class votingsystem:
         self.back_button.place(x=500, y=500)
         
     def add_to_ballot_box(self):
-        election_name = self.election_var.get()
-        candidate_name = self.candidate_var.get()
-        party_name = self.party_var.get()
+        election_id = self.election_var.get().split("-")[0]
+        candidate_id = self.candidate_var.get().split("-")[0]
+        election_name = self.election_var.get().split("-")[1]
+        candidate_name = self.candidate_var.get().split("-")[1]
+        party_id = self.party_var.get().split("-")[0]
+        party_name = self.party_var.get().split("-")[1]
         
-        if election_name == "Select Election" or candidate_name == "Select Candidate" or party_name == "Select Party":
-            messagebox.showerror("Error", "Select an Election, Candidate and Party")
+        if election_id == "Select Election" or candidate_id == "Select Candidate" or party_name == "Select Party":
+            messagebox.showerror("Error", "Select Election, Candidate and Party")
             return
         
         try:
             cursor = voting_systemdb.cursor()
-            insert_data = "INSERT INTO ballot_box (election_name, candidate_name, party_name) VALUES (%s, %s, %s)"
-            cursor.execute(insert_data, (election_name, candidate_name, party_name))
+            # Insert the selected candidate into the 'ballot_box' table into election_id, candidate_id, election_name ,candidate_name, party_name
+            insert_data = "INSERT INTO ballot_box (election_id, candidate_id, party_id, election_name, candidate_name,  party_name) VALUES (%s, %s, %s, %s, %s, %s)"
+            cursor.execute(insert_data, (election_id, candidate_id, party_id, election_name, candidate_name, party_name))
             voting_systemdb.commit()
-            
-            #take recent inserted row in the ballot box table
-            cursor = voting_systemdb.cursor()
-            select_data = "SELECT * FROM ballot_box ORDER BY ballot_id DESC LIMIT 1"
-            cursor.execute(select_data)
-            ballot = cursor.fetchone()
-            
-            candidate_id=ballot[1]
-
             messagebox.showinfo("Success", "Candidate added to Ballot Box successfully")
-            
-            #take the election id from election table with election_name
-            cursor = voting_systemdb.cursor()
-            select_data = "SELECT election_id FROM election WHERE election_name = %s"
-            cursor.execute(select_data, (election_name,))
-            election_id = cursor.fetchone()
-            
-            #insert
-            
-  
+        
         except mysql.connector.Error as e:
             messagebox.showerror("Database Error", f"An error occurred: {e}")
         
         finally:
             cursor.close()
-        
         
             
         
