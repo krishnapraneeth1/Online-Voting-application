@@ -1,2 +1,2 @@
-self.candidate_var = StringVar()  # To store the selected candidate name
-        self.candidate_var.set(None)  # Set the default value to None
+r"^[0-9]{10}$", mobile):
+            messagebox.showerror("Error", "Invalid Mobile Number")

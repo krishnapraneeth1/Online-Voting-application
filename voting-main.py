@@ -17,21 +17,26 @@ import webbrowser
 voting_systemdb = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="Croatia@24",
-    database="voting_system"
+    password="Croatia@24"
 )
 
 #create if not exists the database and the tables
 cursor = voting_systemdb.cursor()
-cursor.execute("CREATE DATABASE IF NOT EXISTS voting_system")
-cursor.execute("USE voting_system")
-cursor.execute("CREATE TABLE IF NOT EXISTS voter (voter_id INT AUTO_INCREMENT PRIMARY KEY, first_name VARCHAR(255), last_name VARCHAR(255), email VARCHAR(255), address VARCHAR(255), mobile INT, password VARCHAR(255))")
+cursor.execute("CREATE DATABASE IF NOT EXISTS vote_system")
+cursor.execute("USE vote_system")
+cursor.execute("CREATE TABLE IF NOT EXISTS voter (email VARCHAR(255) PRIMARY KEY, first_name VARCHAR(255), last_name VARCHAR(255), address VARCHAR(255), mobile INT, password VARCHAR(255))")
 cursor.execute("CREATE TABLE IF NOT EXISTS election (election_id INT AUTO_INCREMENT PRIMARY KEY, election_name VARCHAR(255), start_date DATE, end_date DATE, description VARCHAR(255))")
 cursor.execute("CREATE TABLE IF NOT EXISTS candidate (candidate_id INT AUTO_INCREMENT PRIMARY KEY, first_name VARCHAR(255), last_name VARCHAR(255),gender VARCHAR(45),age INT, address VARCHAR(255), city VARCHAR(255), state VARCHAR(255), zipcode INT, phonenumber INT)")
 cursor.execute("CREATE TABLE IF NOT EXISTS party (party_id INT AUTO_INCREMENT PRIMARY KEY, party_name VARCHAR(100), party_symbol VARCHAR(100), party_image VARCHAR(255))")
 #for ballot box
-cursor.execute("CREATE TABLE IF NOT EXISTS vote (vote_id INT AUTO_INCREMENT PRIMARY KEY,party_name VARCHAR(45), candidate_name VARCHAR(45), username VARCHAR(45), election_name VARCHAR(45))")
-cursor.execute("CREATE TABLE IF NOT EXISTS ballot_box (candidate_id INT PRIMARY KEY, election_id INT , party_id INT , election_name VARCHAR(45), candidate_name VARCHAR(45), party_name VARCHAR(45))")
+cursor.execute("CREATE TABLE IF NOT EXISTS ballot_box (ballot_box_id INT AUTO_INCREMENT PRIMARY KEY,candidate_id INT, election_id INT , party_id INT , election_name VARCHAR(45), candidate_name VARCHAR(45), party_name VARCHAR(45),CONSTRAINT fk_candidate FOREIGN KEY (candidate_id) REFERENCES candidate(candidate_id),CONSTRAINT fk_election FOREIGN KEY (election_id) REFERENCES election(election_id),CONSTRAINT fk_party FOREIGN KEY (party_id) REFERENCES party(party_id))")
+cursor.execute("CREATE TABLE IF NOT EXISTS vote (vote_id INT AUTO_INCREMENT PRIMARY KEY,ballot_box_id INT,party_name VARCHAR(45), candidate_name VARCHAR(45), username VARCHAR(45), election_name VARCHAR(45), CONSTRAINT fk_ballot_box FOREIGN KEY (ballot_box_id) REFERENCES ballot_box(ballot_box_id),CONSTRAINT fk_username FOREIGN KEY (username) REFERENCES voter(email))")
+#from line 34 make candidate_id, election_id, party_id as foreign key
+# cursor.execute("ALTER TABLE ballot_box ADD FOREIGN KEY (candidate_id) REFERENCES candidate(candidate_id)")
+# cursor.execute("ALTER TABLE ballot_box ADD FOREIGN KEY (election_id) REFERENCES election(election_id)")
+# cursor.execute("ALTER TABLE ballot_box ADD FOREIGN KEY (party_id) REFERENCES party(party_id)")
+# cursor.execute("ALTER TABLE vote ADD FOREIGN KEY (ballot_box_id) REFERENCES ballot_box(ballot_box_id)")
+# cursor.execute("ALTER TABLE vote ADD FOREIGN KEY (username) REFERENCES voter(email)")
 
 class votingsystem:
         #initializing the class
@@ -239,19 +244,24 @@ class votingsystem:
         user = cursor.fetchone()
 
         if user:
-            self.voter_id = user[0]
+            print('I am the User'+str(user))
+            self.email = user[0]
             self.first_name = user[1]
             self.last_name = user[2]
-            self.email = user[3]
-            self.address = user[4]
-            self.mobile = user[5]
-            self.current_password = user[6]
+            #self.email = user[3]
+            self.address = user[3]
+            self.mobile = user[4]
+            self.current_password = user[5]
             self.voter_screen()
         elif self.email == "admin" and password == "admin":
-            self.admin_screen()
+             self.admin_screen()
         else:
             messagebox.showerror("Error", "Invalid Email or Password")
             return
+        
+    # forgot password function
+    def forgot_password(self):
+        pass
 
     # add voter screen function
     def voter_screen(self):
@@ -911,7 +921,8 @@ class votingsystem:
         votes = cursor.fetchall()
         
         for vote in votes:
-            if vote[4] == self.election_var.get():
+            print(vote)
+            if vote[5] == self.election_var.get():
                 messagebox.showerror("Error", "You have already voted in this election")
                 self.vote_screen()
                 return
@@ -988,10 +999,19 @@ class votingsystem:
         party_name = self.party_var.get()
         
         #get election name from the election dropdown
-        election_name = self.election_var.get()
+        election_name = self.election_var.get().strip()
+        #fetch ballot box id using election name, candidate name and party name
+        cursor = voting_systemdb.cursor()
+        select_data = "SELECT bb.ballot_box_id FROM ballot_box as bb WHERE bb.election_name = %s AND bb.candidate_name = %s AND bb.party_name = %s"
+        cursor.execute(select_data, (election_name, candidate_name, party_name))
+        ballot_box_id = cursor.fetchone()
         
         # Get the user's first name and last name from the login page
         username= self.email
+        print('Here I am !!'+username)
+        #strip extra spaces from username 
+        username = username.strip()
+        
         
         if candidate_name == "":
             messagebox.showerror("Error", "Select a Candidate")
@@ -999,8 +1019,8 @@ class votingsystem:
         
         # Insert the party name, candidate name, and user first and last name into the vote table
         cursor = voting_systemdb.cursor()
-        insert_data = "INSERT INTO vote (party_name, candidate_name, username,election_name) VALUES (%s, %s, %s, %s)"
-        cursor.execute(insert_data, (party_name, candidate_name, username,election_name))
+        insert_data = "INSERT INTO vote (ballot_box_id,party_name, candidate_name, username,election_name) VALUES (%s,%s, %s, %s, %s)"
+        cursor.execute(insert_data, (ballot_box_id[0],party_name, candidate_name, username,election_name))
         voting_systemdb.commit()  # Commit the transaction
         
         messagebox.showinfo("Success", "Vote casted successfully")
@@ -1287,7 +1307,7 @@ class votingsystem:
         candidate_name = self.candidate_var.get().split("-")[1]
         party_id = self.party_var.get().split("-")[0]
         party_name = self.party_var.get().split("-")[1]
-        
+        election_name = election_name.strip()
         if election_id == "Select Election" or candidate_id == "Select Candidate" or party_name == "Select Party":
             messagebox.showerror("Error", "Select Election, Candidate and Party")
             return
