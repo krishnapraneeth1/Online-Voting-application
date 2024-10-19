@@ -12,6 +12,11 @@ import tkinter as tk
 from datetime import datetime
 from tkinter import ttk
 import webbrowser
+import csv
+from tkinter import filedialog
+from datetime import datetime
+
+
 
 #connecting to the database
 voting_systemdb = mysql.connector.connect(
@@ -374,6 +379,15 @@ class votingsystem:
         self.ballot_button.place(x=170, y=550)
         self.ballot_lable = Label(self.admin_frame, text="Ballot-Box", font=("calibri", 15,"bold"), bg="white", fg="black")
         self.ballot_lable.place(x=160, y=640)
+        
+        # add result image as button right right to the ballot box button
+        self.result = Image.open("reports.png")
+        self.result = self.result.resize((80, 80), Image.LANCZOS)
+        self.result = ImageTk.PhotoImage(self.result)
+        self.result_button = Button(self.admin_frame, image=self.result,bg= "white",bd=0, cursor="hand2",command=self.report_screen)
+        self.result_button.place(x=470, y=550)
+        self.result_lable = Label(self.admin_frame, text="Reports", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.result_lable.place(x=475, y=635)
         
         
         # self.view_result_button = Button(self.admin_frame, text="View Result", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2")
@@ -900,9 +914,109 @@ class votingsystem:
         self.next_button.place(x=500, y=250)
         
         #add back to home button
-        self.back_button = Button(self.vote_frame, text="Back to Home", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.home_screen)
+        self.back_button = Button(self.vote_frame, text="Back to Home", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.voter_screen)
         self.back_button.place(x=500, y=300)
+
+    def report_screen(self):
+        for i in self.root.winfo_children():
+            i.destroy()
+                
+        self.report_frame = Frame(self.root, bg="white")
+        self.report_frame.place(x=0, y=0, width=1200, height=750)
+                    
+        # add report text to the report page center
+        self.report_label = Label(self.report_frame, text="Report", font=("calibri", 20,"bold"), bg="white", fg="black")
+        self.report_label.place(x=550, y=100)
         
+        current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp_label = Label(self.report_frame, text=f"Generated on: {current_timestamp}", font=("calibri", 12), bg="white", fg="black")
+        timestamp_label.place(x=550, y=150)
+        
+        # Generate a report for the election results from the database and give download option
+        cursor = voting_systemdb.cursor()
+        select_data = """
+            SELECT election_name, candidate_name, votes 
+            FROM (
+                SELECT election_name, candidate_name, 
+                    COUNT(DISTINCT username) AS votes, 
+                    RANK() OVER (PARTITION BY election_name ORDER BY COUNT(DISTINCT username) DESC) AS vote_rank
+                FROM vote_system.vote 
+                GROUP BY election_name, candidate_name
+            ) AS a
+            WHERE vote_rank = 1
+        """
+        cursor.execute(select_data)
+        votes = cursor.fetchall()
+        
+        # Add headings
+        election_name_heading = Label(self.report_frame, text="Election Name", font=("calibri", 15,"bold"), bg="white", fg="black")
+        election_name_heading.place(x=50, y=200)
+        
+        candidate_name_heading = Label(self.report_frame, text="Candidate Name", font=("calibri", 15,"bold"), bg="white", fg="black")
+        candidate_name_heading.place(x=250, y=200)
+        
+        votes_heading = Label(self.report_frame, text="Votes", font=("calibri", 15,"bold"), bg="white", fg="black")
+        votes_heading.place(x=450, y=200)
+        
+        # Display the fetched votes on screen
+        for i, vote in enumerate(votes):
+            election_name = Label(self.report_frame, text=vote[0], font=("calibri", 15,"bold"), bg="white", fg="black")
+            election_name.place(x=50, y=250+(i*30))
+            
+            candidate_name = Label(self.report_frame, text=vote[1], font=("calibri", 15,"bold"), bg="white", fg="black")
+            candidate_name.place(x=250, y=250+(i*30))
+            
+            votes_label = Label(self.report_frame, text=vote[2], font=("calibri", 15,"bold"), bg="white", fg="black")
+            votes_label.place(x=450, y=250+(i*30))
+            
+        # Add download report button
+        self.download_button = Button(self.report_frame, text="Download Report", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.download_report)
+        self.download_button.place(x=500, y=600)
+        
+        # Add back to admin button
+        self.back_button = Button(self.report_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.admin_screen)
+        self.back_button.place(x=990, y=650)
+
+    def download_report(self):
+        # Generate a report for the election results from the database and give download option
+        cursor = voting_systemdb.cursor()
+        select_data = """
+            SELECT election_name, candidate_name, votes 
+            FROM (
+                SELECT election_name, candidate_name, 
+                    COUNT(DISTINCT username) AS votes, 
+                    RANK() OVER (PARTITION BY election_name ORDER BY COUNT(DISTINCT username) DESC) AS vote_rank
+                FROM vote_system.vote 
+                GROUP BY election_name, candidate_name
+            ) AS a
+            WHERE vote_rank = 1
+        """
+        cursor.execute(select_data)
+        votes = cursor.fetchall()
+        
+        # Ask the user location to save the report
+        file_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
+        
+        if file_path:
+            # Get the current timestamp
+            current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Write the report to the file
+            with open(file_path, "w", newline="") as file:
+                writer = csv.writer(file)
+                
+                # Write the timestamp at the top
+                writer.writerow([f"Report generated on: {current_timestamp}"])
+                
+                # Write the header
+                writer.writerow(["Election Name", "Candidate Name", "Votes"])
+                
+                # Write the data
+                for vote in votes:
+                    writer.writerow(vote)
+                    
+            messagebox.showinfo("Success", "Report downloaded successfully")
+                    
     def show_candidates(self):
         for i in self.vote_frame.winfo_children():
             i.destroy()
