@@ -77,36 +77,36 @@ class votingsystem:
         self.welcome_label.place(x=30, y=120)
         
         #adding login text to the login page right side
-        self.login_label = Label(self.login_frame, text="Login", font=("calibri", 20,"bold"), bg="white", fg="black")
+        self.login_label = Label(self.login_frame, text="Login", font=("calibri", 20,"bold"), bg="#72A5D0", fg="black")
         self.login_label.place(x=900, y=150)
         
         # adding username labels and entry boxes
-        self.username_label = Label(self.login_frame, text="Username", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.username_label = Label(self.login_frame, text="Username", font=("calibri", 15,"bold"), bg="#72A5D0", fg="black")
         self.username_label.place(x=850, y=200)
-        self.username_entry = Entry(self.login_frame, font=("calibri", 15), bg="white", fg="black")
+        self.username_entry = Entry(self.login_frame, font=("calibri", 15), bg="#72A5D0", fg="black")
         self.username_entry.place(x=850, y=230)
         
         # adding password labels and entry boxes
-        self.password_label = Label(self.login_frame, text="Password", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.password_label = Label(self.login_frame, text="Password", font=("calibri", 15,"bold"), bg="#72A5D0", fg="black")
         self.password_label.place(x=850, y=270)
-        self.password_entry = Entry(self.login_frame, font=("calibri", 15), bg="white", fg="black", show="*")
+        self.password_entry = Entry(self.login_frame, font=("calibri", 15), bg="#72A5D0", fg="black", show="*")
         self.password_entry.place(x=850, y=300)
         
         # adding show password check button
-        self.show_pass = Checkbutton(self.login_frame, text="Show Password", variable=self.show_pass_var, onvalue=1, offvalue=0,bg="white", fg="black")#command=self.show_password
+        self.show_pass = Checkbutton(self.login_frame, text="Show Password", variable=self.show_pass_var, onvalue=1, offvalue=0,bg="#72A5D0", fg="black")
         self.show_pass.place(x=850, y=330)
         
         # adding forgot password button
-        self.forgot_pass = Button(self.login_frame, text="Forgot Password?", font=("calibri", 10), bg="white", fg="black", bd=0, cursor="hand2") #command=self.forgot_password
+        self.forgot_pass = Button(self.login_frame, text="Forgot Password?", font=("calibri", 10), bg="#72A5D0", fg="black", bd=0, cursor="hand2",activebackground="#72A5D0",command=self.forgot_password)
         self.forgot_pass.place(x=860, y=360)
         
         # adding login button
-        self.login_button = Button(self.login_frame, text="Login", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.login_authentication)
-        self.login_button.place(x=880, y=390)
+        self.login_button = Button(self.login_frame, text="Login", font=("calibri", 15,"bold"), bg="#72A5D0", fg="black", bd=1, cursor="hand2",activebackground="#72A5D0", command=self.login_authentication)
+        self.login_button.place(x=877, y=390)
         
         # adding register button
-        self.register_button = Button(self.login_frame, text="Register", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.signupscreen)
-        self.register_button.place(x=960, y=390)
+        self.register_button = Button(self.login_frame, text="Register", font=("calibri", 15,"bold"), bg="#72A5D0", fg="black", bd=1, cursor="hand2", command=self.signupscreen)
+        self.register_button.place(x=957, y=390)
         
     def signupscreen(self):
         for i in self.root.winfo_children():
@@ -264,10 +264,6 @@ class votingsystem:
             messagebox.showerror("Error", "Invalid Email or Password")
             return
         
-    # forgot password function
-    def forgot_password(self):
-        pass
-
     # add voter screen function
     def voter_screen(self):
         for i in self.root.winfo_children():
@@ -297,7 +293,57 @@ class votingsystem:
         # add logout button to the right side of the page
         self.logout_button = Button(self.voter_frame, text="Logout", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.loginscreen)
         self.logout_button.place(x=500, y=550)
+        
+    #forgot password screen
+    def forgot_password(self):
+        for i in self.root.winfo_children():
+            i.destroy()
+            
+        self.forgot_password_frame = Frame(self.root, bg="white")
+        self.forgot_password_frame.place(x=0, y=0, width=1200, height=750)
+        
+        #add image to the forgot password page
+        self.bg = Image.open("forgot_password.jpg")
+        self.bg = self.bg.resize((1200, 750), Image.LANCZOS)
+        self.bg = ImageTk.PhotoImage(self.bg)
+        self.bg_image = Label(self.forgot_password_frame, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
+        
+        # add forgot password text to the forgot password page right side
+        self.forgot_password_label = Label(self.forgot_password_frame, text="Forgot Password", font=("calibri", 20,"bold"), bg="white", fg="black")
+        self.forgot_password_label.place(x=720, y=100)
+        
+        # add email label and entry box to the left side of the page
+        self.email_label = Label(self.forgot_password_frame, text="Current Email", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.email_label.place(x=650, y=200)
+        self.email_entry = Entry(self.forgot_password_frame, font=("calibri", 15), bg="white", fg="black")
+        self.email_entry.place(x=650, y=230)
+        
+        #add new password label and entry box to the left side of the page
+        self.new_password_label = Label(self.forgot_password_frame, text="New Password", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.new_password_label.place(x=650, y=260)
+        
+        self.new_password_entry = Entry(self.forgot_password_frame, font=("calibri", 15), bg="white", fg="black", show="*")
+        self.new_password_entry.place(x=650, y=290)
+        
+        # add confirm password label and entry box to the right side of the new password entry box
+        self.confirm_password_label = Label(self.forgot_password_frame, text="Confirm Password", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.confirm_password_label.place(x=880, y=260)
+        self.confirm_password_entry = Entry(self.forgot_password_frame, font=("calibri", 15), bg="white", fg="black", show="*")
+        self.confirm_password_entry.place(x=880, y=290)
     
+        
+        # add reset password button
+        self.reset_password_button = Button(self.forgot_password_frame, text="Reset Password", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2")
+        self.reset_password_button.place(x=750, y=350)
+        
+
+        #add image as button for back to login
+        self.back_to_login_image = Image.open("back.png")
+        self.back_to_login_image = self.back_to_login_image.resize((80, 80), Image.LANCZOS)
+        self.back_to_login_image = ImageTk.PhotoImage(self.back_to_login_image)
+        self.back_to_login_button = Button(self.forgot_password_frame, image=self.back_to_login_image, bg="white", bd=0, cursor="hand2", command=self.loginscreen)
+        self.back_to_login_button.place(x=1050, y=650)
+        
     # admin screen function
     def admin_screen(self):
         for i in self.root.winfo_children():
@@ -841,16 +887,16 @@ class votingsystem:
             
         self.election_var = StringVar()
         self.election_var.set("Select Election")
-        self.election_entry = ttk.Combobox(self.root, textvariable=self.election_var, values=election_list, state="readonly")
-        self.election_entry.place(x=500, y=200)
+        self.election_entry = ttk.Combobox(self.root, textvariable=self.election_var, values=election_list, state="readonly",font=("calibri", 15))
+        self.election_entry.place(x=527, y=200)
         
         #add delete button
-        self.delete_button = Button(self.root, text="Delete", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.delete_election_data)
-        self.delete_button.place(x=500, y=250)
+        self.delete_button = Button(self.root, text="Delete", font=("calibri", 15,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.delete_election_data)
+        self.delete_button.place(x=590, y=250)
         
         #add back to admin button
-        self.back_button = Button(self.root, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.admin_screen)
-        self.back_button.place(x=500, y=300)
+        self.back_button = Button(self.root, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.admin_screen)
+        self.back_button.place(x=533, y=300)
         
     def delete_election_data(self):
         election_name = self.election_var.get()
@@ -1041,12 +1087,6 @@ class votingsystem:
                 self.vote_screen()
                 return
        
-        
-        
-        
-        
-        
-        
         election_name = self.election_var.get()
         
         if election_name == "Select Election":
@@ -1101,7 +1141,7 @@ class votingsystem:
         self.vote_button.place(x=500, y=600)
         
         # Add back to home button
-        self.back_button = Button(self.vote_frame, text="Back to Home", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.home_screen)
+        self.back_button = Button(self.vote_frame, text="Back to Home", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.voter_screen)
         self.back_button.place(x=500, y=650)
 
     def update_party(self, candidate_name, party_name):
@@ -1265,30 +1305,36 @@ class votingsystem:
         
         self.create_party_frame = Frame(self.root, bg="white")
         self.create_party_frame.place(x=0, y=0, width=1200, height=750)
+        #add image to the create party page
+        self.bg = Image.open("create_party.jpg")
+        self.bg = self.bg.resize((1200, 750), Image.LANCZOS)
+        self.bg = ImageTk.PhotoImage(self.bg)
+        self.bg_image = Label(self.create_party_frame, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
         
         
-        # party name lqbel and entry box
+        
+        # party name label and entry box
         self.party_name_label = Label(self.create_party_frame, text="Party Name", font=("calibri", 15,"bold"), bg="white", fg="black")
-        self.party_name_label.place(x=650, y=200)
+        self.party_name_label.place(x=500, y=200)
         self.party_name_entry = Entry(self.create_party_frame, font=("calibri", 15), bg="white", fg="black")
-        self.party_name_entry.place(x=650, y=230)
+        self.party_name_entry.place(x=500, y=230)
         
         # party symbol label and choose image button
         self.party_symbol_label = Label(self.create_party_frame, text="Party Symbol", font=("calibri", 15,"bold"), bg="white", fg="black")
-        self.party_symbol_label.place(x=650, y=260)
+        self.party_symbol_label.place(x=500, y=260)
         self.party_symbol_entry = Entry(self.create_party_frame, font=("calibri", 15), bg="white", fg="black")
-        self.party_symbol_entry.place(x=650, y=290)
+        self.party_symbol_entry.place(x=500, y=290)
         
-        self.choose_image_button = Button(self.create_party_frame, text="Choose Image", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.choose_image)
-        self.choose_image_button.place(x=850, y=290)
+        self.choose_image_button = Button(self.create_party_frame, text="Choose Party Image", font=("calibri", 13,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.choose_image)
+        self.choose_image_button.place(x=710, y=287)
         
         # create party button
         self.create_party_button = Button(self.create_party_frame, text="Register Party", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.register_party_data)
-        self.create_party_button.place(x=650, y=350)
+        self.create_party_button.place(x=545, y=400)
         
         # back to admin button
         self.back_button = Button(self.create_party_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.admin_screen)
-        self.back_button.place(x=850, y=350)
+        self.back_button.place(x=900, y=600)
         
     def choose_image(self):
         #CHOOSE IMAGE FUNCTION from the file dialog
@@ -1449,14 +1495,14 @@ class votingsystem:
         self.admin_view_result_frame.place(x=0, y=0, width=1200, height=750)
         
         #add image to the view result page
-        # self.bg = Image.open("viewresult.png")
-        # self.bg = self.bg.resize((1200, 750), Image.LANCZOS)
-        # self.bg = ImageTk.PhotoImage(self.bg)
-        # self.bg_image = Label(self.admin_view_result_frame, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
+        self.bg = Image.open("election_results.jpg")
+        self.bg = self.bg.resize((1200, 750), Image.LANCZOS)
+        self.bg = ImageTk.PhotoImage(self.bg)
+        self.bg_image = Label(self.admin_view_result_frame, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
         
         # add view result text to the view result page center
-        self.view_result_label = Label(self.admin_view_result_frame, text="View Results", font=("calibri", 20,"bold"), bg="#15196e", fg="white")
-        self.view_result_label.place(x=550, y=50)
+        self.view_result_label = Label(self.admin_view_result_frame, text="View Results", font=("calibri", 20,"bold"), bg="#0A3158", fg="white")
+        self.view_result_label.place(x=530, y=170)
         
         #select the election name from the dropdown
         cursor = voting_systemdb.cursor()
@@ -1473,15 +1519,15 @@ class votingsystem:
         
         self.election_var.set("Select Election")
         self.election_entry = ttk.Combobox(self.admin_view_result_frame, textvariable=self.election_var, values=election_list, state="readonly")
-        self.election_entry.place(x=500, y=100)
+        self.election_entry.place(x=535, y=220)
         
         #show the result button
-        self.show_result_button = Button(self.admin_view_result_frame, text="Show Result", font=("calibri", 15,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.admin_show_result)
-        self.show_result_button.place(x=500, y=150)
+        self.show_result_button = Button(self.admin_view_result_frame, text="Show Result", font=("calibri", 13,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.admin_show_result)
+        self.show_result_button.place(x=550, y=263)
         
         #add back to admin button
-        self.back_button = Button(self.admin_view_result_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.admin_screen)
-        self.back_button.place(x=500, y=200)
+        self.back_button = Button(self.admin_view_result_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="#0A3158", fg="white", bd=1, cursor="hand2", command=self.admin_screen)
+        self.back_button.place(x=980, y=600)
         
     def admin_show_result(self):
         for i in self.admin_view_result_frame.winfo_children():
@@ -1489,15 +1535,21 @@ class votingsystem:
         
         self.admin_view_result_frame = Frame(self.root, bg="white")
         self.admin_view_result_frame.place(x=0, y=0, width=1200, height=750)
+        #add image to the view result page
+        self.bg = Image.open("election_results.jpg")
+        self.bg = self.bg.resize((1200, 750), Image.LANCZOS)
+        self.bg = ImageTk.PhotoImage(self.bg)
+        self.bg_image = Label(self.admin_view_result_frame, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
         
-        self.view_result_label = Label(self.admin_view_result_frame, text="View Results", font=("calibri", 20,"bold"), bg="#15196e", fg="white")
-        self.view_result_label.place(x=550, y=50)
+        
+        self.view_result_label = Label(self.admin_view_result_frame, text="Election Results", font=("calibri", 20,"bold"), bg="#0A3158", fg="white")
+        self.view_result_label.place(x=515, y=150)
         
         election_name = self.election_var.get().strip()  # Make sure to strip any extra spaces
         
         if election_name == "Select Election":
             messagebox.showerror("Error", "Select an Election")
-            return
+            self.admin_view_result()
         
         # siply show the result of the selected election
         select_data = """
@@ -1516,22 +1568,21 @@ class votingsystem:
             return
         
         # Show the candidate name and total votes
-        candidate_name_label = Label(self.admin_view_result_frame, text="Candidate Name", font=("calibri", 15,"bold"), bg="#15196e", fg="white")
-        candidate_name_label.place(x=50, y=100)
-        
-        total_votes_label = Label(self.admin_view_result_frame, text="Total Votes", font=("calibri", 15,"bold"), bg="#15196e", fg="white")
-        total_votes_label.place(x=250, y=100)
-        
+        candidate_name_label = Label(self.admin_view_result_frame, text="Candidate Name", font=("calibri", 15,"bold"), bg="#0A3158", fg="white")
+        candidate_name_label.place(x=50, y=200)
+
+        total_votes_label = Label(self.admin_view_result_frame, text="Total Votes", font=("calibri", 15,"bold"), bg="#0A3158", fg="white")
+        total_votes_label.place(x=250, y=200)
+
         for i, vote in enumerate(votes):
-            candidate_name = Label(self.admin_view_result_frame, text=vote[0], font=("calibri", 15,"bold"), bg="#15196e", fg="white")
-            candidate_name.place(x=50, y=130+(i*30))
-            
-            total_votes = Label(self.admin_view_result_frame, text=vote[1], font=("calibri", 15,"bold"), bg="#15196e", fg="white")
-            total_votes.place(x=250, y=130+(i*30))
-            
+            candidate_name = Label(self.admin_view_result_frame, text=vote[0], font=("calibri", 15,"bold"), bg="#0A3158", fg="white")
+            candidate_name.place(x=50, y=230+(i*30))
+
+            total_votes = Label(self.admin_view_result_frame, text=vote[1], font=("calibri", 15,"bold"), bg="#0A3158", fg="white")
+            total_votes.place(x=250, y=230+(i*30))
         # Add back to admin button
-        self.back_button = Button(self.admin_view_result_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.admin_screen)
-        self.back_button.place(x=100, y=600)
+        self.back_button = Button(self.admin_view_result_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="#0A3158", fg="white", bd=1, cursor="hand2", command=self.admin_screen)
+        self.back_button.place(x=980, y=600)
         
     
 
