@@ -298,51 +298,84 @@ class votingsystem:
     def forgot_password(self):
         for i in self.root.winfo_children():
             i.destroy()
-            
+
         self.forgot_password_frame = Frame(self.root, bg="white")
         self.forgot_password_frame.place(x=0, y=0, width=1200, height=750)
-        
-        #add image to the forgot password page
+
+        # Add background image to the forgot password page
         self.bg = Image.open("forgot_password.jpg")
         self.bg = self.bg.resize((1200, 750), Image.LANCZOS)
         self.bg = ImageTk.PhotoImage(self.bg)
         self.bg_image = Label(self.forgot_password_frame, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
-        
-        # add forgot password text to the forgot password page right side
-        self.forgot_password_label = Label(self.forgot_password_frame, text="Forgot Password", font=("calibri", 20,"bold"), bg="white", fg="black")
-        self.forgot_password_label.place(x=720, y=100)
-        
-        # add email label and entry box to the left side of the page
-        self.email_label = Label(self.forgot_password_frame, text="Current Email", font=("calibri", 15,"bold"), bg="white", fg="black")
-        self.email_label.place(x=650, y=200)
-        self.email_entry = Entry(self.forgot_password_frame, font=("calibri", 15), bg="white", fg="black")
-        self.email_entry.place(x=650, y=230)
-        
-        #add new password label and entry box to the left side of the page
-        self.new_password_label = Label(self.forgot_password_frame, text="New Password", font=("calibri", 15,"bold"), bg="white", fg="black")
-        self.new_password_label.place(x=650, y=260)
-        
-        self.new_password_entry = Entry(self.forgot_password_frame, font=("calibri", 15), bg="white", fg="black", show="*")
-        self.new_password_entry.place(x=650, y=290)
-        
-        # add confirm password label and entry box to the right side of the new password entry box
-        self.confirm_password_label = Label(self.forgot_password_frame, text="Confirm Password", font=("calibri", 15,"bold"), bg="white", fg="black")
-        self.confirm_password_label.place(x=880, y=260)
-        self.confirm_password_entry = Entry(self.forgot_password_frame, font=("calibri", 15), bg="white", fg="black", show="*")
-        self.confirm_password_entry.place(x=880, y=290)
-    
-        
-        # add reset password button
-        self.reset_password_button = Button(self.forgot_password_frame, text="Reset Password", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2")
-        self.reset_password_button.place(x=750, y=350)
-        
 
-        #add image as button for back to login
-        self.back_to_login_image = Image.open("back.png")
-        self.back_to_login_image = self.back_to_login_image.resize((80, 80), Image.LANCZOS)
-        self.back_to_login_image = ImageTk.PhotoImage(self.back_to_login_image)
-        self.back_to_login_button = Button(self.forgot_password_frame, image=self.back_to_login_image, bg="white", bd=0, cursor="hand2", command=self.loginscreen)
-        self.back_to_login_button.place(x=1050, y=650)
+        # Add "Forgot Password" text to the right side
+        self.forgot_password_label = Label(self.forgot_password_frame, text="Forgot Password", font=("calibri", 20, "bold"), bg="white", fg="black")
+        self.forgot_password_label.place(x=720, y=100)
+
+        # Add email label and entry box
+        self.email_label = Label(self.forgot_password_frame, text="Current Email", font=("calibri", 15, "bold"), bg="white", fg="black")
+        self.email_label.place(x=750, y=170)
+        self.email_entry = Entry(self.forgot_password_frame, font=("calibri", 15), bg="white", fg="black")
+        self.email_entry.place(x=725, y=220)
+
+        # Add verify button
+        self.verify_button = Button(self.forgot_password_frame, text="Verify", font=("calibri", 15, "bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.verify_email)
+        self.verify_button.place(x=790, y=270)
+
+        # Initialize the password fields (they will be shown only after email verification)
+        self.new_password_label = Label(self.forgot_password_frame, text="New Password", font=("calibri", 15, "bold"), bg="white", fg="black")
+        self.new_password_entry = Entry(self.forgot_password_frame, font=("calibri", 15), bg="white", fg="black", show="*")
+
+        self.new_confirm_password_label = Label(self.forgot_password_frame, text="Confirm Password", font=("calibri", 15, "bold"), bg="white", fg="black")
+        self.new_confirm_password_entry = Entry(self.forgot_password_frame, font=("calibri", 15), bg="white", fg="black", show="*")
+
+        # Initialize the reset button
+        self.reset_button = Button(self.forgot_password_frame, text="Reset Password", font=("calibri", 15, "bold"), bg="white", fg="black", command=self.submit_new_password)
+
+    def verify_email(self):
+        # Verify if the entered email exists in the database
+        current_email = self.email_entry.get()
+
+        cursor = voting_systemdb.cursor()
+        select_data = "SELECT email FROM voter WHERE email = %s"
+        cursor.execute(select_data, (current_email,))
+        result = cursor.fetchone()
+
+        if result is None:
+            messagebox.showerror("Error", "Invalid Email")
+        else:
+            # If email is valid, show password fields for reset
+            self.new_password_label.place(x=730, y=330)
+            self.new_password_entry.place(x=730, y=360)
+            self.new_confirm_password_label.place(x=730, y=400)
+            self.new_confirm_password_entry.place(x=730, y=430)
+            self.reset_button.place(x=760, y=470)
+
+    def submit_new_password(self):
+        # Get the new password and confirm password
+        new_password = self.new_password_entry.get()
+        confirm_password = self.new_confirm_password_entry.get()
+        current_email = self.email_entry.get()
+
+        # Check if password and confirm password are the same
+        if new_password != confirm_password:
+            messagebox.showerror("Error", "Password and Confirm Password should be the same")
+            
+        # if password and confirm password entry is empty show error
+        elif new_password == "" or confirm_password == "":
+            messagebox.showerror("Error", "All fields are required")
+        elif len(new_password) < 8 or not re.search("[a-z]", new_password) or not re.search("[A-Z]", new_password) or not re.search("[0-9]", new_password):
+            messagebox.showerror("Error", "Password must contain at least 8 characters, including letters and numbers")
+        else:
+            # Update the password in the database
+            cursor = voting_systemdb.cursor()
+            update_password = "UPDATE voter SET password = %s WHERE email = %s"
+            cursor.execute(update_password, (new_password, current_email))
+            voting_systemdb.commit()
+
+            messagebox.showinfo("Success", "Password Reset Successful")
+            self.loginscreen()  # Redirect to login screen
+
         
     # admin screen function
     def admin_screen(self):
