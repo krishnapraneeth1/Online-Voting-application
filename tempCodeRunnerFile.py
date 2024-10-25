@@ -1,2 +1,2 @@
-r"^[0-9]{10}$", mobile):
-            messagebox.showerror("Error", "Invalid Mobile Number")
+
+        self.ballot_box_frame = Frame(self.root, bg="white")
