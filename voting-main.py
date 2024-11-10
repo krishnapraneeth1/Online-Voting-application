@@ -9,6 +9,7 @@ from PIL import Image, ImageTk
 from tkinter import filedialog
 import re
 import tkinter as tk
+import customtkinter as ctk
 from datetime import datetime
 from tkinter import ttk
 import webbrowser
@@ -52,13 +53,13 @@ class votingsystem:
         self.root.config(bg="white")
         
         self.loginscreen()
-    
+     
     #function to destroy all the widgets on the screen
     def loginscreen(self):
         for i in self.root.winfo_children():
             i.destroy()
             
-        self.login_frame = Frame(self.root, bg="white")
+        self.login_frame = Frame(self.root, bg="#72A5D0")
         self.login_frame.place(x=0, y=0, width=1200, height=750)
         
         self.show_pass_var = tk.IntVar()
@@ -111,14 +112,48 @@ class votingsystem:
         self.forgot_pass = Button(self.login_frame, text="Forgot Password?", font=("calibri", 10), bg="#72A5D0", fg="black", bd=0, cursor="hand2",activebackground="#72A5D0",command=self.forgot_password)
         self.forgot_pass.place(x=860, y=360)
         
+        # # adding login button
+        # self.login_button = Button(self.login_frame, text="Login", font=("calibri", 15,"bold"), bg="#72A5D0", fg="black", bd=1, cursor="hand2",activebackground="#72A5D0", command=self.login_authentication)
+        # self.login_button.place(x=877, y=390)
+        
+        # # adding register button
+        # self.register_button = Button(self.login_frame, text="Register", font=("calibri", 15,"bold"), bg="#72A5D0", fg="black", bd=1, cursor="hand2", command=self.signupscreen)
+        # self.register_button.place(x=957, y=390)
+
+        # Initialize CustomTkinter appearance and theme
+        ctk.set_appearance_mode("system")  # Modes: "System", "Dark", "Light"
+        ctk.set_default_color_theme("blue")  # Themes: "blue", "green", "dark-blue"
+
+        # ... your existing code ...
+
         # adding login button
-        self.login_button = Button(self.login_frame, text="Login", font=("calibri", 15,"bold"), bg="#72A5D0", fg="black", bd=1, cursor="hand2",activebackground="#72A5D0", command=self.login_authentication)
-        self.login_button.place(x=877, y=390)
-        
+        self.login_button = ctk.CTkButton(
+            self.login_frame,
+            text="Login",
+            font=("calibri", 20, "bold"),
+            fg_color="#72A5D0",  # Button background color
+            text_color="black",
+            border_width=1,
+            border_color='black',
+            command=self.login_authentication
+        )
+        self.login_button.place(x=870, y=390)
+
         # adding register button
-        self.register_button = Button(self.login_frame, text="Register", font=("calibri", 15,"bold"), bg="#72A5D0", fg="black", bd=1, cursor="hand2", command=self.signupscreen)
-        self.register_button.place(x=957, y=390)
-        
+        self.register_button = ctk.CTkButton(
+            self.login_frame,
+            text="Register",
+            font=("calibri", 20, "bold"),
+            fg_color="#72A5D0",
+            text_color="black",
+            border_width=1,
+            border_color='black',
+            command=self.signupscreen
+        )
+        self.register_button.place(x=870, y=430)
+
+
+
     def signupscreen(self):
         for i in self.root.winfo_children():
             i.destroy()
@@ -578,6 +613,10 @@ class votingsystem:
         self.logout_button = Button(self.admin_frame, image=self.logout,bg= "white",bd=0, cursor="hand2")
         self.logout_button.place(x=1120, y=40)
         self.logout_button.config(command=self.loginscreen)
+        #add text to the logout button
+        self.logout_label = Label(self.admin_frame, text="Logout", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.logout_label.place(x=1115, y=70)
+        
         
         
         
@@ -602,7 +641,7 @@ class votingsystem:
         self.create_election_label = Label(self.create_election_frame, text="Create Election", font=("calibri", 20,"bold"), bg="#003d60", fg="white")
         self.create_election_label.place(x=700, y=100)
         
-
+        
         
         # add election name label and entry box to the left side of the page
         self.election_name_label = Label(self.create_election_frame, text="Election Name", font=("calibri", 15,"bold"), bg="#003d60", fg="white")
@@ -631,12 +670,12 @@ class votingsystem:
         # add election description label and entry box to the left side of the page
         self.election_description_label = Label(self.create_election_frame, text="Election Description", font=("calibri", 15,"bold"), bg="#003d60", fg="white")
         self.election_description_label.place(x=650, y=320)
-        self.election_description_entry = Entry(self.create_election_frame, font=("calibri", 15), bg="#003d60", fg="white",width=30)
+        self.election_description_entry = Text(self.create_election_frame, font=("calibri", 15), bg="#003d60", fg="white", width=30, height=4)
         self.election_description_entry.place(x=650, y=350)
         
         # add create election button
         self.create_election_button = Button(self.create_election_frame, text="Register Election", font=("calibri", 15,"bold"), bg="#003d60", fg="white", bd=1, cursor="hand2", command=self.register_election)
-        self.create_election_button.place(x=650, y=460)
+        self.create_election_button.place(x=650, y=470)
         
         # add back to admin button to the right side bottom of the page
         self.back_button = Button(self.create_election_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="#003d60", fg="white", bd=1, cursor="hand2", command=self.admin_screen)
@@ -674,6 +713,16 @@ class votingsystem:
         # check if the data is empty
         if election_name == "" or start_date == "" or end_date == "" or description == "":
             messagebox.showerror("Error", "All fields are required")
+            return
+        
+        # if election already exist show error
+        cursor = voting_systemdb.cursor()
+        select_data = "SELECT election_name FROM election WHERE election_name = %s"
+        cursor.execute(select_data, (election_name,))
+        result = cursor.fetchone()
+        
+        if result:
+            messagebox.showerror("Error", "Election already exists")
             return
         
         # inserting the data to the database
@@ -1193,6 +1242,9 @@ class votingsystem:
         for i in self.vote_frame.winfo_children():
             i.destroy()
         
+        self.has_voted = False
+        self.candidate_var = StringVar(value="")  # Default value is an empty string
+        self.party_var = StringVar()  # Initialize party_var as well
         #add image to the vote page
         self.bg = Image.open("user_vote_candiate_Screen.jpg")
         self.bg = self.bg.resize((1200, 750), Image.LANCZOS)
@@ -1217,11 +1269,16 @@ class votingsystem:
                 messagebox.showerror("Error", "You have already voted in this election")
                 self.vote_screen()
                 return
-       
+        # if votes:
+        #     messagebox.showerror("Error", "You have already voted in this election")
+        #     self.vote_screen()
+        #     return
         election_name = self.election_var.get()
         
         if election_name == "Select Election":
             messagebox.showerror("Error", "Select an Election")
+            #return to the vote screen
+            self.vote_screen()
             return
         
         # Add headings
@@ -1296,6 +1353,15 @@ class votingsystem:
         candidate_name = self.candidate_var.get()
         party_name = self.party_var.get()
         
+        if self.has_voted:
+            messagebox.showerror("Error", "You have already voted in this session")
+            return
+        
+        if candidate_name == "" or candidate_name is None:  # If no candidate is selected
+            messagebox.showerror("Error", "Select a Candidate")
+            self.show_candidates()  # Return to the candidate selection screen
+            return
+        
         #get election name from the election dropdown
         election_name = self.election_var.get().strip()
         #fetch ballot box id using election name, candidate name and party name
@@ -1304,6 +1370,11 @@ class votingsystem:
         cursor.execute(select_data, (election_name, candidate_name, party_name))
         ballot_box_id = cursor.fetchone()
         
+        if ballot_box_id is None:
+            messagebox.showerror("Error", "Invalid election or candidate selection. Please check your choices.")
+            self.show_candidates()
+            return
+        
         # Get the user's first name and last name from the login page
         username= self.email
         print('Here I am !!'+username)
@@ -1311,16 +1382,20 @@ class votingsystem:
         username = username.strip()
         
         
-        if candidate_name == "":
-            messagebox.showerror("Error", "Select a Candidate")
-            return
-        
+        # if candidate_name == "":
+        #     messagebox.showerror("Error", "Select a Candidate")
+        #     return
+    
+     
         # Insert the party name, candidate name, and user first and last name into the vote table
         cursor = voting_systemdb.cursor()
         insert_data = "INSERT INTO vote (ballot_box_id,party_name, candidate_name, username,election_name) VALUES (%s,%s, %s, %s, %s)"
         cursor.execute(insert_data, (ballot_box_id[0],party_name, candidate_name, username,election_name))
         voting_systemdb.commit()  # Commit the transaction
         
+        #messagebox.showinfo("Success", "Vote casted successfully")
+        
+        self.has_voted = True
         messagebox.showinfo("Success", "Vote casted successfully")
             
     def view_result_screen(self):
@@ -1441,10 +1516,16 @@ class votingsystem:
         if not votes:
             messagebox.showinfo("Info", "No votes have been cast for this election.")
             return
-        
+    
+        # if there is a tie between the candidates with the same number of votes show result as a tie
+        if len(votes) > 1 and votes[0][1] == votes[1][1]:
+            winner = "Tie"
+            total_votes = votes[0][1]
+        else: 
         # Show the winner
-        winner = votes[0][0]
-        total_votes = votes[0][1]
+            winner = votes[0][0]
+            total_votes = votes[0][1]
+    
         
         #add image below the view election result text
         self.election_image = Image.open("user_winning_page.png")
@@ -1536,6 +1617,18 @@ class votingsystem:
         party_name = self.party_name_entry.get()
         party_symbol = self.party_symbol_entry.get()
         party_image = self.filename
+        
+        #if party exists in the database do not register again
+        cursor = voting_systemdb.cursor()
+        select_data = "SELECT party_name FROM party WHERE party_name = %s"
+        cursor.execute(select_data, (party_name,))
+        party = cursor.fetchone()
+        
+        if party:
+            messagebox.showerror("Error", "Party already exists")
+            return
+        
+        
         
         if party_name == "" or party_symbol == "":
             messagebox.showerror("Error", "All fields are required")
@@ -1664,6 +1757,16 @@ class votingsystem:
             messagebox.showerror("Error", "Select Election, Candidate and Party")
             return
         
+        #if the selected candidate is already in the party do not add again
+        cursor = voting_systemdb.cursor()
+        select_data = "SELECT * FROM ballot_box WHERE election_id = %s AND candidate_id = %s"
+        cursor.execute(select_data, (election_id, candidate_id))
+        candidate = cursor.fetchone()
+        
+        if candidate:
+            messagebox.showerror("Error", "Candidate already in the Ballot Box")
+            return
+        
         try:
             cursor = voting_systemdb.cursor()
             # Insert the selected candidate into the 'ballot_box' table into election_id, candidate_id, election_name ,candidate_name, party_name
@@ -1789,11 +1892,7 @@ class votingsystem:
             
     
         
-        
-        
-        
-        
-        
+
         
 #starter code
 if __name__ == "__main__":
