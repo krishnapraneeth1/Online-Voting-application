@@ -760,15 +760,15 @@ class votingsystem:
         self.create_candidate_label.place(x=400, y=60)
         
         #add candidate first name label and entry box to the left side of the page
-        self.candidate_first_name_label = Label(self.create_candidate_frame, text="First Name", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.candidate_first_name_label = Label(self.create_candidate_frame, text="First Name", font=("calibri", 15,"bold"), bg="#0C2452", fg="white")
         self.candidate_first_name_label.place(x=650, y=200)
-        self.candidate_first_name_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="white", fg="black")
+        self.candidate_first_name_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="#0C2452", fg="white")
         self.candidate_first_name_entry.place(x=650, y=230)
         
         #add candidate last name label and entry box to the right side of the page
-        self.candidate_last_name_label = Label(self.create_candidate_frame, text="Last Name", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.candidate_last_name_label = Label(self.create_candidate_frame, text="Last Name", font=("calibri", 15,"bold"), bg="#0C2452", fg="white")
         self.candidate_last_name_label.place(x=850, y=200)
-        self.candidate_last_name_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="white", fg="black")
+        self.candidate_last_name_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="#0C2452", fg="white")
         self.candidate_last_name_entry.place(x=850, y=230)
         
         # add candidate gender radio buttons 
@@ -777,19 +777,19 @@ class votingsystem:
         
 
         # Add candidate gender label
-        self.candidate_gender_label = Label(self.create_candidate_frame, text="Gender", font=("calibri", 15, "bold"), bg="white", fg="black")
+        self.candidate_gender_label = Label(self.create_candidate_frame, text="Gender", font=("calibri", 15, "bold"), bg="#0C2452", fg="white")
         self.candidate_gender_label.place(x=650, y=300)
 
         # Add male gender radio button (with circular indicator)
-        self.male_radio = Radiobutton(self.create_candidate_frame, text="Male", variable=self.gender_var, value="Male", font=("calibri", 15), bg="white", fg="black")
+        self.male_radio = Radiobutton(self.create_candidate_frame, text="Male", variable=self.gender_var, value="Male", font=("calibri", 15), bg="#0C2452", fg="white")
         self.male_radio.place(x=650, y=330)
 
         # Add female gender radio button (with circular indicator)
-        self.female_radio = Radiobutton(self.create_candidate_frame, text="Female", variable=self.gender_var, value="Female", font=("calibri", 15), bg="white", fg="black")
+        self.female_radio = Radiobutton(self.create_candidate_frame, text="Female", variable=self.gender_var, value="Female", font=("calibri", 15), bg="#0C2452", fg="white")
         self.female_radio.place(x=750, y=330)
 
         # Add other gender radio button (with circular indicator)
-        self.other_radio = Radiobutton(self.create_candidate_frame, text="Other", variable=self.gender_var, value="Other", font=("calibri", 15), bg="white", fg="black")
+        self.other_radio = Radiobutton(self.create_candidate_frame, text="Other", variable=self.gender_var, value="Other", font=("calibri", 15), bg="#0C2452", fg="white")
         self.other_radio.place(x=850, y=330)
         
         # Set default value
@@ -798,47 +798,47 @@ class votingsystem:
        
 
         # candidate age label and entry box
-        self.candidate_age_label = Label(self.create_candidate_frame, text="Age", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.candidate_age_label = Label(self.create_candidate_frame, text="Age", font=("calibri", 15,"bold"), bg="#0C2452", fg="white")
         self.candidate_age_label.place(x=650, y=360)
-        self.candidate_age_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="white", fg="black")
+        self.candidate_age_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="#0C2452", fg="white")
         self.candidate_age_entry.place(x=650, y=390)
         
         #candidate address label and entry box
-        self.candidate_address_label = Label(self.create_candidate_frame, text="Address", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.candidate_address_label = Label(self.create_candidate_frame, text="Address", font=("calibri", 15,"bold"), bg="#0C2452", fg="white")
         self.candidate_address_label.place(x=650, y=420)
-        self.candidate_address_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="white", fg="black")
+        self.candidate_address_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="#0C2452", fg="white")
         self.candidate_address_entry.place(x=650, y=450)
         
         #city label and entry box
-        self.candidate_city_label = Label(self.create_candidate_frame, text="City", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.candidate_city_label = Label(self.create_candidate_frame, text="City", font=("calibri", 15,"bold"), bg="#0C2452", fg="white")
         self.candidate_city_label.place(x=650, y=480)
-        self.candidate_city_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="white", fg="black")
+        self.candidate_city_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="#0C2452", fg="white")
         self.candidate_city_entry.place(x=650, y=510)
         
         #state label and entry box
-        self.candidate_state_label = Label(self.create_candidate_frame, text="State", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.candidate_state_label = Label(self.create_candidate_frame, text="State", font=("calibri", 15,"bold"), bg="#0C2452", fg="white")
         self.candidate_state_label.place(x=850, y=480)
-        self.candidate_state_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="white", fg="black")
+        self.candidate_state_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="#0C2452", fg="white")
         self.candidate_state_entry.place(x=850, y=510)
         
         #zip code label and entry box
-        self.candidate_zip_code_label = Label(self.create_candidate_frame, text="Zip Code", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.candidate_zip_code_label = Label(self.create_candidate_frame, text="Zip Code", font=("calibri", 15,"bold"), bg="#0C2452", fg="white")
         self.candidate_zip_code_label.place(x=650, y=540)
-        self.candidate_zip_code_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="white", fg="black")
+        self.candidate_zip_code_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="#0C2452", fg="white")
         self.candidate_zip_code_entry.place(x=650, y=570)
         
         #phone number label and entry box in next line
-        self.candidate_phone_number_label = Label(self.create_candidate_frame, text="Phone Number", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.candidate_phone_number_label = Label(self.create_candidate_frame, text="Phone Number", font=("calibri", 15,"bold"), bg="#0C2452", fg="white")
         self.candidate_phone_number_label.place(x=650, y=600)
-        self.candidate_phone_number_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="white", fg="black")
+        self.candidate_phone_number_entry = Entry(self.create_candidate_frame, font=("calibri", 15), bg="#0C2452", fg="white")
         self.candidate_phone_number_entry.place(x=650, y=630)
         
         #create candidate button
-        self.create_candidate_button = Button(self.create_candidate_frame, text="Register Candidate", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.register_candidate)
+        self.create_candidate_button = Button(self.create_candidate_frame, text="Register Candidate", font=("calibri", 15,"bold"), bg="#0C2452", fg="white", bd=1, cursor="hand2", command=self.register_candidate)
         self.create_candidate_button.place(x=650, y=680)
         
         #back to admin button
-        self.back_button = Button(self.create_candidate_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.admin_screen)
+        self.back_button = Button(self.create_candidate_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="#0C2452", fg="white", bd=1, cursor="hand2", command=self.admin_screen)
         self.back_button.place(x=850, y=680)
         
         
@@ -1254,7 +1254,7 @@ class votingsystem:
         # self.vote_frame = Frame(self.root, bg="white")
         # self.vote_frame.place(x=0, y=0, width=1200, height=750)
         
-        self.vote_label = Label(self.vote_frame, text="Choose your candidate", font=("calibri", 20,"bold"), bg="white", fg="black")
+        self.vote_label = Label(self.vote_frame, text="Choose your candidate", font=("calibri", 20,"bold"), bg="#D2CDCA", fg="black")
         self.vote_label.place(x=550, y=50)
         
         #validate if the user has already voted in this election
@@ -1282,13 +1282,13 @@ class votingsystem:
             return
         
         # Add headings
-        candidate_name_heading = Label(self.vote_frame, text="Candidate Name", font=("calibri", 15,"bold"), bg="white", fg="black")
+        candidate_name_heading = Label(self.vote_frame, text="Candidate Name", font=("calibri", 15,"bold"), bg="#D2CDCA", fg="black")
         candidate_name_heading.place(x=50, y=100)
         
-        party_name_heading = Label(self.vote_frame, text="Party Name", font=("calibri", 15,"bold"), bg="white", fg="black")
+        party_name_heading = Label(self.vote_frame, text="Party Name", font=("calibri", 15,"bold"), bg="#D2CDCA", fg="black")
         party_name_heading.place(x=250, y=100)
         
-        party_symbol_heading = Label(self.vote_frame, text="Party Symbol", font=("calibri", 15,"bold"), bg="white", fg="black")
+        party_symbol_heading = Label(self.vote_frame, text="Party Symbol", font=("calibri", 15,"bold"), bg="#D2CDCA", fg="black")
         party_symbol_heading.place(x=450, y=100)
         
         # Fetch candidates in the election from the database
@@ -1307,21 +1307,20 @@ class votingsystem:
         self.party_var = StringVar()  # To store the selected party name
         
         for i, candidate in enumerate(candidates):
-            candidate_name = Label(self.vote_frame, text=candidate[0], font=("calibri", 15,"bold"), bg="white", fg="black")
+            candidate_name = Label(self.vote_frame, text=candidate[0], font=("calibri", 15,"bold"), bg="#D2CDCA", fg="black")
             candidate_name.place(x=50, y=150+(i*150))
             
-            party_name = Label(self.vote_frame, text=candidate[1], font=("calibri", 15,"bold"), bg="white", fg="black")
+            party_name = Label(self.vote_frame, text=candidate[1], font=("calibri", 15,"bold"), bg="#D2CDCA", fg="black")
             party_name.place(x=250, y=150+(i*150))
             
             party_image = Image.open(candidate[2])
             party_image = party_image.resize((100, 100), Image.LANCZOS)
             party_image = ImageTk.PhotoImage(party_image)
-            party_image_label = Label(self.vote_frame, image=party_image)
+            party_image_label = Label(self.vote_frame, image=party_image, bg="black")
             party_image_label.image = party_image
             party_image_label.place(x=450, y=150+(i*150))
-            
             # Store both candidate name and party name in the value of the radio button
-            candidate_radio = Radiobutton(self.vote_frame, text=candidate[0], variable=self.candidate_var, value=candidate[0], font=("calibri", 15), bg="white", fg="black", command=lambda c=candidate[0], p=candidate[1]: self.update_party(c, p))
+            candidate_radio = Radiobutton(self.vote_frame, text=candidate[0], variable=self.candidate_var, value=candidate[0], font=("calibri", 15), bg="#D2CDCA", fg="black", command=lambda c=candidate[0], p=candidate[1]: self.update_party(c, p))
             candidate_radio.place(x=650, y=150+(i*150))
         
         # Add vote button
@@ -1329,10 +1328,10 @@ class votingsystem:
         self.vote_image = Image.open("vote.png")
         self.vote_image = self.vote_image.resize((60, 60), Image.LANCZOS)
         self.vote_image = ImageTk.PhotoImage(self.vote_image)
-        self.vote_button = Button(self.vote_frame, image=self.vote_image, bg="white", bd=0, cursor="hand2", command=self.vote_capture)
+        self.vote_button = Button(self.vote_frame, image=self.vote_image, bg="#D2CDCA", bd=0, cursor="hand2", command=self.vote_capture)
         self.vote_button.place(x=500, y=600)
         # add vote text to the vote image button
-        self.vote_label = Label(self.vote_frame, text="Click to Cast your Vote", font=("calibri", 15,"bold"), bg="white", fg="black")
+        self.vote_label = Label(self.vote_frame, text="Click to Cast your Vote", font=("calibri", 15,"bold"), bg="#D2CDCA", fg="black")
         self.vote_label.place(x=438, y=660)
         
         
@@ -1341,7 +1340,7 @@ class votingsystem:
         self.back_image = Image.open("back.png")
         self.back_image = self.back_image.resize((70, 70), Image.LANCZOS)
         self.back_image = ImageTk.PhotoImage(self.back_image)
-        self.back_button = Button(self.vote_frame, image=self.back_image, bg="white", bd=0, cursor="hand2", command=self.voter_screen)
+        self.back_button = Button(self.vote_frame, image=self.back_image, bg="#D2CDCA", bd=0, cursor="hand2", command=self.voter_screen)
         self.back_button.place(x=100, y=650)
     
 
@@ -1576,23 +1575,23 @@ class votingsystem:
         
         
         # party name label and entry box
-        self.party_name_label = Label(self.create_party_frame, text="Party Name", font=("calibri", 15,"bold"), bg="white", fg="black")
-        self.party_name_label.place(x=500, y=200)
-        self.party_name_entry = Entry(self.create_party_frame, font=("calibri", 15), bg="white", fg="black")
-        self.party_name_entry.place(x=500, y=230)
+        self.party_name_label = Label(self.create_party_frame, text="Party Name", font=("calibri", 15,"bold"), bg="#583D8E", fg="white")
+        self.party_name_label.place(x=800, y=200)
+        self.party_name_entry = Entry(self.create_party_frame, font=("calibri", 15), bg="#583D8E", fg="black")
+        self.party_name_entry.place(x=800, y=230)
         
         # party symbol label and choose image button
-        self.party_symbol_label = Label(self.create_party_frame, text="Party Symbol", font=("calibri", 15,"bold"), bg="white", fg="black")
-        self.party_symbol_label.place(x=500, y=260)
-        self.party_symbol_entry = Entry(self.create_party_frame, font=("calibri", 15), bg="white", fg="black")
-        self.party_symbol_entry.place(x=500, y=290)
+        self.party_symbol_label = Label(self.create_party_frame, text="Party Symbol", font=("calibri", 15,"bold"), bg="#583D8E", fg="white")
+        self.party_symbol_label.place(x=800, y=260)
+        self.party_symbol_entry = Entry(self.create_party_frame, font=("calibri", 15), bg="#583D8E", fg="black")
+        self.party_symbol_entry.place(x=800, y=300)
         
-        self.choose_image_button = Button(self.create_party_frame, text="Choose Party Image", font=("calibri", 13,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.choose_image)
-        self.choose_image_button.place(x=710, y=287)
+        self.choose_image_button = Button(self.create_party_frame, text="Choose Party Image", font=("calibri", 13,"bold"), bg="#583D8E", fg="white", bd=1, cursor="hand2", command=self.choose_image)
+        self.choose_image_button.place(x=860, y=350)
         
         # create party button
-        self.create_party_button = Button(self.create_party_frame, text="Register Party", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.register_party_data)
-        self.create_party_button.place(x=545, y=400)
+        self.create_party_button = Button(self.create_party_frame, text="Register Party", font=("calibri", 15,"bold"), bg="#583D8E", fg="white", bd=1, cursor="hand2", command=self.register_party_data)
+        self.create_party_button.place(x=865, y=420)
         
         # back to admin button
         self.back_button = Button(self.create_party_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="white", fg="black", bd=1, cursor="hand2", command=self.admin_screen)
@@ -1797,7 +1796,7 @@ class votingsystem:
         
         # add view result text to the view result page center
         self.view_result_label = Label(self.admin_view_result_frame, text="View Results", font=("calibri", 20,"bold"), bg="#0A3158", fg="white")
-        self.view_result_label.place(x=530, y=170)
+        self.view_result_label.place(x=530, y=270)
         
         #select the election name from the dropdown
         cursor = voting_systemdb.cursor()
@@ -1814,11 +1813,11 @@ class votingsystem:
         
         self.election_var.set("Select Election")
         self.election_entry = ttk.Combobox(self.admin_view_result_frame, textvariable=self.election_var, values=election_list, state="readonly")
-        self.election_entry.place(x=535, y=220)
+        self.election_entry.place(x=535, y=320)
         
         #show the result button
         self.show_result_button = Button(self.admin_view_result_frame, text="Show Result", font=("calibri", 13,"bold"), bg="#15196e", fg="white", bd=1, cursor="hand2", command=self.admin_show_result)
-        self.show_result_button.place(x=550, y=263)
+        self.show_result_button.place(x=550, y=430)
         
         #add back to admin button
         self.back_button = Button(self.admin_view_result_frame, text="Back to Admin Page", font=("calibri", 15,"bold"), bg="#0A3158", fg="white", bd=1, cursor="hand2", command=self.admin_screen)
